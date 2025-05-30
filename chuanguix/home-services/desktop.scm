@@ -86,6 +86,18 @@
 
         ;; File syncing
         syncthing-gtk
+        ;; input mehtod
+
+        ;; fcitx
+        (specification->package "fcitx5")
+        (specification->package "fcitx5-gtk")
+        (specification->package "fcitx5-gtk4")
+        (specification->package "fcitx5-qt")
+        (specification->package "fcitx5-configtool")
+        (specification->package "fcitx5-rime")
+        (specification->package "librime")
+        (specification->package "fcitx5-chinese-addons")
+        (specification->package "dconf")
 
         ;; General utilities
         curl
@@ -96,7 +108,16 @@
         trash-cli))
 
 (define (home-desktop-environment-variables config)
-  '(("_JAVA_AWT_WM_NONREPARENTING" . "1")))
+  '(("_JAVA_AWT_WM_NONREPARENTING" . "1")
+    ;; fcitx输入法
+    ("GTK_IM_MODULE" . "fcitx")
+    ("QT_IM_MODULE" . "fcitx")
+    ("XMODIFIERS" . "@im=fcitx")
+    ("SDL_IM_MODULE" . "fcitx")
+    ("INPUT_METHOD" . "fcitx")
+    ;;("GLFW_IM_MODULE" . "ibus")
+    ("GUIX_GTK2_IM_MODULE_FILE" . "/run/current-system/profile/lib/gtk-2.0/2.10.0/immodules-gtk2.cache")
+    ("GUIX_GTK3_IM_MODULE_FILE" . "/run/current-system/profile/lib/gtk-3.0/3.0.0/immodules-gtk3.cache")))
 
 (define home-desktop-service-type
   (service-type (name 'home-desktop)
