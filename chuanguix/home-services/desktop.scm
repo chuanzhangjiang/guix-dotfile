@@ -10,7 +10,7 @@
 (use-package-modules compression curl fonts freedesktop gimp glib gnome gnome-xyz
                      gstreamer kde-frameworks linux music package-management
                      password-utils pdf pulseaudio shellutils ssh syncthing terminals
-                     video web-browsers wget wm xdisorg xorg qt)
+                     video web-browsers wget wm xdisorg xorg qt cmake commencement)
 
 (define (home-desktop-profile-service config)
   (list sway
@@ -23,6 +23,10 @@
         gammastep
         grimshot ;; grimshot --notify copy area
         network-manager-applet
+
+        ;; compile tool
+        libvterm cmake gcc-toolchain
+        (specification->package "make")
 
         ;; Compatibility for older Xorg applications
         xorg-server-xwayland
