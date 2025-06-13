@@ -80,7 +80,7 @@
    emacs-htmlize
    emacs-denote
    emacs-logos
-   dw-emacs-howm
+   ;;dw-emacs-howm
 
    emacs-magit
    emacs-magit-todos

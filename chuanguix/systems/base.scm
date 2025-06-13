@@ -88,6 +88,7 @@
                     stow
                     vim
                     emacs-pgtk
+                    ;;emacs
                     %base-packages))
 
    ;; Configure only the services necessary to run the system
