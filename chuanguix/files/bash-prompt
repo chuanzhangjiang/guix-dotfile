@@ -19,6 +19,7 @@ LT_GREEN="\e[1;32m"
 LT_RED="\e[1;31m"
 GREEN="\e[0;32m"
 PURPLE="\e[1;35m"
+YELLOW="\e[0;33;49m"
 COLOR_NONE="\e[0m"
 
 # Detect whether the current directory is a git repository.
@@ -40,25 +41,25 @@ function set_bash_prompt () {
     PS1="\n"
 
     # Host and directory
-    PS1+="${LT_CYAN}\u@\h${COLOR_NONE} ${LT_RED}${BOLD}⛧${COLOR_NONE} "
-    PS1+="${GREEN}\w${COLOR_NONE} • "
+    PS1+="${LT_CYAN}\u@\h${COLOR_NONE} 👺${COLOR_NONE} "
+    PS1+="${YELLOW}\w${COLOR_NONE} • "
 
     # Add git branch
     if is_git_repository; then
         set_git_branch
-        PS1+="${PURPLE}${BRANCH}${COLOR_NONE} • "
+        PS1+="${LT_CYAN}${BRANCH}${COLOR_NONE} • "
     fi
 
     # Current time in 12 hour format
-    PS1+="${GREEN}$(date +'%r')${COLOR_NONE}\n"
+    PS1+="${YELLOW}$(date +'%r')${COLOR_NONE}\n"
 
     # Prompt character with color based on exit code
     if [ "$?" == "0" ]; then
-        PS1+="${LT_GREEN}"
+        PS1+="${YELLOW}"
     else
         PS1+="${LT_RED}"
     fi
-    PS1+="λ${COLOR_NONE}"
+    PS1+="λ ${COLOR_NONE}"
 
     # If inside vterm, add prompt metadata
     if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
