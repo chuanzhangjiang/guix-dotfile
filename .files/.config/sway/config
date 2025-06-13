@@ -43,6 +43,7 @@ bindsym $mod+Shift+x exit
 bindsym $mod+Shift+r reload
 bindsym $mod+Shift+e exec $emacs_frame_cmd
 bindsym $mod+Shift+Return exec $foot_cmd
+bindsym $mod+Shift+c exec ~/.bin/chrome-wrapper
 
 bindsym $mod+h focus left
 bindsym $mod+l focus right
@@ -175,3 +176,15 @@ include "~/.config/sway/systems/$(hostname)"
 
 # Update DBUS activation records to ensure Flatpak apps work
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+
+# 输入法支持
+exec_always fcitx5 -d --replace
+
+# Chrome输入法支持
+for_window [app_id="google-chrome"] {
+    # 必须浮动才能正常使用输入法
+    floating enable
+    border none
+    inhibit_idle fullscreen
+    focus
+}

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# 设置输入法环境变量
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+export INPUT_METHOD=fcitx
+
+# Wayland 支持
+if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+    exec google-chrome-unstable \
+        --enable-features=UseOzonePlatform \
+        --ozone-platform=wayland \
+        --enable-wayland-ime \
+        --class=google-chrome-wayland \
+        "$@"
+else
+    # X11 配置
+    exec google-chrome-unstable \
+        --class=google-chrome-x11 \
+        "$@"
+fi
