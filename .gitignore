@@ -5,6 +5,9 @@
 .emacs.d/straight/modified/
 .emacs.d/straight/repos/
 .emacs.d/straight/build-cache.el
+.emacs.d
+emacs
+Emacs.org
 
 ; No more OBS config in the repo
 .files/.config/obs-studio
