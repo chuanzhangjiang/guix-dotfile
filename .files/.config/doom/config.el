@@ -78,3 +78,57 @@
 ;; 關閉自動提示
 (after! corfu
   (setq corfu-auto nil))
+
+;; ======================
+;; GPG & Pinentry 配置
+;; ======================
+
+;; 启用 EPA（加密接口）
+(require 'epa)
+(require 'epg)
+
+;; 设置 pinentry 模式为 loopback（关键！）
+(setq epg-pinentry-mode 'loopback)
+(setq epa-pinentry-mode 'loopback)
+
+;; 启动 pinentry 守护进程
+(use-package pinentry
+  :config
+  (pinentry-start))
+
+;; 配置 GnuPG 路径（Guix 专用）
+(setq epg-gpg-program "/home/chuan/.guix-profile/bin/gpg2")
+(setq epg-gpg-home-directory "~/.gnupg")
+
+;; 缓存密码设置
+(setq epa-file-cache-passphrase t)
+(setq epa-file-passphrase-alist-expiry 3600)  ; 1小时缓存
+
+;; 邮件签名设置
+(setq mml-secure-openpgp-encrypt-to-self t)
+(setq mml-secure-openpgp-sign-with-sender t)
+
+;; 设置全局签名
+(setq git-commit-signoff t)
+(setq git-commit-signature t)
+
+;; 提交时自动签名
+(add-hook! 'git-commit-setup-hook
+  (when (and (boundp 'git-commit-signature)
+             git-commit-signature)
+    (git-commit-signoff)))
+
+;; ======================
+;; 美观的密码提示
+;; ======================
+
+(defun chuan/pinentry-prompt (type)
+  "自定义密码提示"
+  (let ((prompt (pcase type
+                  ('decrypt "🔑 解锁 GPG 密钥: ")
+                  ('sign "✍️ 签名需要密码: ")
+                  ('auth "🔒 认证密码: ")
+                  (_ "🔑 输入 GPG 密码: "))))
+    (read-passwd prompt)))
+
+(advice-add 'pinentry-read-passphrase :override #'chuan/pinentry-prompt)
