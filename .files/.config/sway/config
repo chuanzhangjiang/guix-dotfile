@@ -140,6 +140,14 @@ exec swayidle -w \
 # Window rules
 for_window [title="Firefox — Sharing Indicator"] kill
 for_window [title=".* - mpv$"] floating enable, sticky enable
+# Chrome输入法支持
+for_window [app_id="google-chrome"] {
+    # 必须浮动才能正常使用输入法
+    floating enable
+    border none
+    inhibit_idle fullscreen
+    focus
+}
 
 bar {
     position top
@@ -164,7 +172,7 @@ exec mako --border-radius=2 --font="JetBrains Mono 8" --max-visible=5 --outer-ma
 exec nm-applet --indicator
 exec udiskie -t
 # exec gammastep-indicator -l 37.983810:23.727539 -t 6500:3500 -b 1.0:0.7
-exec $foot_cmd emacs
+exec $foot_cmd emacs -nw
 
 # Set GNOME settings (requires "glib:bin" in Guix)
 exec gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
@@ -180,11 +188,3 @@ exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CU
 # 输入法支持
 exec_always fcitx5 -d --replace
 
-# Chrome输入法支持
-for_window [app_id="google-chrome"] {
-    # 必须浮动才能正常使用输入法
-    floating enable
-    border none
-    inhibit_idle fullscreen
-    focus
-}

@@ -20,3 +20,4 @@ fonts/truetype/.uuid
 
 ;; gpg
 .files/.gnupg
+/.files/.config/fcitx5/conf/cached_layouts
