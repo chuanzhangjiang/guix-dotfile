@@ -1,0 +1,176 @@
+#!/bin/sh
+
+# 配置参数
+USER_HOME="$HOME"
+BACKUP_DIR="$USER_HOME/backups"
+DATE=$(date +%Y%m%d)
+TEMP_DIR=$(mktemp -d)
+BACKUP_FILE="$BACKUP_DIR/gpg-keys-$DATE.tar.gz"
+ENCRYPTED_FILE="$BACKUP_FILE.enc"
+
+# 创建备份目录
+mkdir -p "$BACKUP_DIR"
+
+# 检查 GPG 是否可用
+if ! command -v gpg &> /dev/null; then
+  echo "❌ 错误：未找到 gpg 命令"
+  exit 1
+fi
+
+# 获取 GPG 版本信息
+GPG_VERSION=$(gpg --version | head -n1)
+echo "🔒 使用 $GPG_VERSION 备份 GPG 密钥"
+
+# 导出公钥
+echo "🔑 导出公钥..."
+gpg --armor --export > "$TEMP_DIR/public-keys.asc"
+if [ ! -s "$TEMP_DIR/public-keys.asc" ]; then
+  echo "❌ 错误：未导出任何公钥"
+  exit 1
+fi
+
+# 导出私钥
+echo "🔑 导出私钥（需要输入主密码）..."
+gpg --armor --export-secret-keys > "$TEMP_DIR/private-keys.asc"
+if [ ! -s "$TEMP_DIR/private-keys.asc" ]; then
+  echo "❌ 错误：未导出任何私钥"
+  exit 1
+fi
+
+# 导出吊销证书
+echo "📜 导出吊销证书..."
+gpg --armor --gen-revoke > "$TEMP_DIR/revocation-certificates.asc" 2>/dev/null
+
+# 导出信任数据库
+echo "💾 导出信任数据库..."
+gpg --export-ownertrust > "$TEMP_DIR/ownertrust.txt"
+
+# 列出所有密钥
+echo "🗝️ 密钥列表："
+gpg --list-secret-keys --keyid-format LONG | grep "^sec" | awk '{print $2}' | cut -d'/' -f2 > "$TEMP_DIR/key-ids.txt"
+cat "$TEMP_DIR/key-ids.txt"
+
+# 创建恢复说明
+cat > "$TEMP_DIR/RESTORE_INSTRUCTIONS.txt" <<EOF
+GPG 密钥恢复指南
+================
+
+1. 解密备份文件：
+   openssl enc -d -aes-256-cbc -pbkdf2 -iter 100000 \\
+     -in '$ENCRYPTED_FILE' \\
+     -out 'gpg-keys-$DATE.tar.gz' \\
+     -pass pass:'您的密码'
+
+2. 解压备份文件：
+   tar -xzvf gpg-keys-$DATE.tar.gz
+
+3. 导入公钥：
+   gpg --import public-keys.asc
+
+4. 导入私钥：
+   gpg --import private-keys.asc
+
+5. 导入信任数据库：
+   gpg --import-ownertrust < ownertrust.txt
+
+6. 导入吊销证书（可选）：
+   gpg --import revocation-certificates.asc
+
+7. 设置正确权限：
+   chmod 700 ~/.gnupg
+   chmod 600 ~/.gnupg/*
+
+8. 验证导入：
+   gpg --list-secret-keys
+   gpg --check-trustdb
+
+9. 更新密钥（可选）：
+   gpg --refresh-keys
+
+注意：导入私钥后，您需要输入私钥密码才能使用。
+EOF
+
+# 打包所有文件
+echo "📦 打包备份文件..."
+if ! tar -czf "$BACKUP_FILE" -C "$TEMP_DIR" .; then
+  echo "❌ 错误：创建备份压缩包失败"
+  exit 1
+fi
+
+# 获取加密密码
+echo ""
+echo "🔐 请输入加密密码（至少10个字符）："
+while true; do
+  read -s -r -p "密码: " PASSWORD
+  echo ""
+
+  if [ ${#PASSWORD} -ge 10 ]; then
+    echo "🔐 请再次输入密码确认："
+    read -s -r -p "确认: " CONFIRM
+    echo ""
+
+    if [ "$PASSWORD" = "$CONFIRM" ]; then
+      break
+    else
+      echo "❌ 两次输入的密码不匹配，请重试"
+    fi
+  else
+    echo "❌ 密码长度不足10个字符，请重试"
+  fi
+done
+
+# 加密备份
+echo "🔒 加密备份文件..."
+if ! openssl enc -aes-256-cbc -salt -pbkdf2 -iter 100000 \
+    -in "$BACKUP_FILE" -out "$ENCRYPTED_FILE" \
+    -pass pass:"$PASSWORD" 2>/dev/null; then
+  echo "❌ 错误：加密过程失败"
+  exit 1
+fi
+
+# 清理未加密文件
+rm -f "$BACKUP_FILE"
+
+# 验证加密文件
+if [ ! -f "$ENCRYPTED_FILE" ]; then
+  echo "❌ 错误：加密文件未生成"
+  exit 1
+fi
+
+# 计算文件信息
+MD5_HASH=$(md5sum "$ENCRYPTED_FILE" | cut -d' ' -f1)
+FILE_SIZE=$(du -h "$ENCRYPTED_FILE" | cut -f1)
+KEY_COUNT=$(wc -l < "$TEMP_DIR/key-ids.txt")
+
+echo "✅ 备份完成: $ENCRYPTED_FILE ($FILE_SIZE)"
+echo "  包含 $KEY_COUNT 个密钥"
+echo "  备份时间: $(date)"
+
+# 清理临时目录
+rm -rf "$TEMP_DIR"
+
+# 显示恢复说明
+echo ""
+echo "========================================"
+echo "🔐 GPG 密钥备份摘要"
+echo "----------------------------------------"
+echo "备份文件: $ENCRYPTED_FILE"
+echo "文件大小: $FILE_SIZE"
+echo "MD5 校验: $MD5_HASH"
+echo "密钥数量: $KEY_COUNT"
+echo "备份时间: $(date)"
+echo "========================================"
+echo ""
+echo "💾 重要提示："
+echo "1. 此备份包含您的私有 GPG 密钥 - 请安全存储"
+echo "2. 密码是恢复备份的唯一方式 - 请妥善保存"
+echo "3. 恢复说明已包含在备份包中 (RESTORE_INSTRUCTIONS.txt)"
+echo ""
+echo "🔧 恢复时请参考以下简要步骤："
+echo "  1. 解密备份文件"
+echo "  2. 导入公钥和私钥"
+echo "  3. 导入信任数据库"
+echo "  4. 设置正确权限"
+echo "========================================"
+
+exit 0
