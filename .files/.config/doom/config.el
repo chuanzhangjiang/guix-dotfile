@@ -82,7 +82,6 @@
 ;; ======================
 ;; GPG & Pinentry 配置
 ;; ======================
-
 ;; 启用 EPA（加密接口）
 (require 'epa)
 (require 'epg)
@@ -132,3 +131,275 @@
     (read-passwd prompt)))
 
 (advice-add 'pinentry-read-passphrase :override #'chuan/pinentry-prompt)
+
+;; ====================
+;; org相关配置
+;; ====================
+;;agenda任务文件
+(setq org-agenda-files '("~/org/normal_task.org"))
+
+;; ====================
+;; dired相关配置
+;; ====================
+(defun dw/dired-mode-hook ()
+  (interactive)
+  (dired-hide-details-mode 1)
+  (hl-line-mode 1))
+
+(use-package dired
+  :ensure nil
+  :bind (:map dired-mode-map
+              ("b" . dired-up-directory))
+  :config
+  (setq dired-listing-switches "-alvh --group-directories-first"
+        dired-omit-files "^\\.[^.].*"
+        dired-omit-verbose nil
+        dired-dwim-target 'dired-dwim-target-next
+        dired-hide-details-hide-symlink-targets nil
+        dired-kill-when-opening-new-dired-buffer t
+        delete-by-moving-to-trash t)
+
+  (add-hook 'dired-mode-hook #'dw/dired-mode-hook))
+
+;;; ----- Appearance -----
+
+(defun dw/set-terminal-title (title)
+  (send-string-to-terminal (format "\e]0;%s\a" title)))
+
+(defun dw/clear-background-color (&optional frame)
+  (interactive)
+  (or frame (setq frame (selected-frame)))
+  "unsets the background color in terminal mode"
+  (unless (display-graphic-p frame)
+    ;; Set the terminal to a transparent version of the background color
+    (send-string-to-terminal
+     (format "\033]11;[90]%s\033\\"
+         (face-attribute 'default :background)))
+    (set-face-background 'default "unspecified-bg" frame)))
+
+;; Clear the background color for transparent terminals
+(unless (display-graphic-p)
+  (add-hook 'after-make-frame-functions 'dw/clear-background-color)
+  (add-hook 'window-setup-hook 'dw/clear-background-color)
+  (add-hook 'ef-themes-post-load-hook 'dw/clear-background-color))
+
+(when (display-graphic-p)
+  (set-face-attribute 'default nil
+                      :font "JetBrains Mono"
+                      :weight 'normal
+                      :height 140)
+
+  ;; Set the fixed pitch face
+  (set-face-attribute 'fixed-pitch nil
+                      :font "JetBrains Mono"
+                      :weight 'normal
+                      :height 140)
+
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil
+                      :font "Iosevka Aile"
+                      :height 120
+                      :weight 'normal)
+
+  ;; Make frames transparent
+  (set-frame-parameter (selected-frame) 'alpha-background 93)
+  (add-to-list 'default-frame-alist '(alpha-background . 93))
+  (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+  (add-to-list 'default-frame-alist '(fullscreen . maximized)))
+
+(defun dw/apply-ayu-dark-style ()
+  (interactive)
+  (setopt modus-themes-italic-constructs t
+          modus-themes-bold-constructs t
+          modus-themes-common-palette-overrides
+          `((bg-main "#0F111B")
+            (bg-active bg-main)
+            (fg-main "#C3CCDF")
+            (fg-active fg-main)
+            (fringe unspecified)
+            (border-mode-line-active unspecified)
+            (border-mode-line-inactive unspecified)
+            (fg-mode-line-active "#B3B1AD")
+            (bg-mode-line-active "#171B27")
+            (fg-mode-line-inactive "#65737E")
+            (bg-mode-line-inactive "#1C1F29")
+            (bg-tab-bar      "#1C1F29")
+            (bg-tab-current  bg-main)
+            (bg-tab-other    "#171B27")
+            (fg-prompt "#F6C177")
+            (bg-prompt unspecified)
+            (bg-hover-secondary "#65737E")
+            (bg-completion "#2f447f")
+            (fg-completion "#ffffff")
+            (bg-region "#2B2E36")
+            (fg-region "#ffffff")
+
+            ;; Heading colors
+            (fg-heading-0 "#81A1C1")
+            (fg-heading-1 "#81A1C1")
+            (fg-heading-2 "#F6C177")
+            (fg-heading-3 "#FFB974")
+            (fg-heading-4 "#C792EA")
+
+            (fg-prose-verbatim "#A3BE8C")
+            (bg-prose-block-contents "#171B27")
+            (fg-prose-block-delimiter "#65737E")
+            (bg-prose-block-delimiter "#171B27")
+
+            (accent-1 "#7FDBCA")
+
+            (keyword   "#F6C177")
+            (builtin   "#81A1C1")
+            (comment   "#65737E")
+            (string    "#A3BE8C")
+            (fnname    "#7FDBCA")
+            (type      "#C792EA")
+            (variable  "#FFB974")
+            (docstring "#8996A2")
+            (constant  "#F07178"))))
+
+(defun dw/apply-palenight-style ()
+  (interactive)
+  (setopt modus-themes-italic-constructs t
+          modus-themes-bold-constructs t
+          modus-themes-common-palette-overrides
+          `((bg-main "#292D3E")
+            (bg-active bg-main)
+            (fg-main "#EEFFFF")
+            (fg-active fg-main)
+            (fringe unspecified)
+            (border-mode-line-active unspecified)
+            (border-mode-line-inactive unspecified)
+            (fg-mode-line-active "#A6Accd")
+            (bg-mode-line-active "#232635")
+            (fg-mode-line-inactive "#676E95")
+            (bg-mode-line-inactive "#282c3d")
+            (bg-tab-bar      "#242837")
+            (bg-tab-current  bg-main)
+            (bg-tab-other    bg-active)
+            (fg-prompt "#c792ea")
+            (bg-prompt unspecified)
+            (bg-hover-secondary "#676E95")
+            (bg-completion "#2f447f")
+            (fg-completion white)
+            (bg-region "#3C435E")
+            (fg-region white)
+
+            (fg-heading-0 "#82aaff")
+            (fg-heading-1 "#82aaff")
+            (fg-heading-2 "#c792ea")
+            (fg-heading-3 "#bb80b3")
+            (fg-heading-4 "#a1bfff")
+
+            (fg-prose-verbatim "#c3e88d")
+            (bg-prose-block-contents "#232635")
+            (fg-prose-block-delimiter "#676E95")
+            (bg-prose-block-delimiter bg-prose-block-contents)
+
+            (accent-1 "#79a8ff")
+
+            (keyword "#89DDFF")
+            (builtin "#82aaff")
+            (comment "#676E95")
+            (string "#c3e88d")
+            (fnname "#82aaff")
+            (type "#c792ea")
+            (variable "#ffcb6b")
+            (docstring "#8d92af")
+            (constant "#f78c6c"))))
+
+(use-package modus-themes
+  :ensure nil
+  :demand t
+  :init
+  (load-theme 'modus-vivendi-tinted t)
+  (dw/apply-ayu-dark-style)
+  (add-hook 'modus-themes-after-load-theme-hook #'dw/clear-background-color))
+
+;; Make vertical window separators look nicer in terminal Emacs
+(set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
+
+;; Clean up the mode line
+(setq-default mode-line-format
+              '("%e" "  "
+                (:propertize
+                 ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
+                mode-line-frame-identification
+                mode-line-buffer-identification
+                "   "
+                mode-line-position
+                mode-line-format-right-align
+                "  "
+                (project-mode-line project-mode-line-format)
+                " "
+                (vc-mode vc-mode)
+                "  "
+                mode-line-modes
+                mode-line-misc-info
+                "  ")
+              project-mode-line t
+              mode-line-buffer-identification '(" %b")
+              mode-line-position-column-line-format '(" %l:%c"))
+
+(use-package emacs-solo-rainbow-delimiters
+  :ensure nil
+  :no-require t
+  :defer t
+  :init
+  (defun emacs-solo/rainbow-delimiters ()
+    "Apply simple rainbow coloring to parentheses, brackets, and braces in the current buffer.
+Opening and closing delimiters will have matching colors."
+    (interactive)
+    (let ((colors '(font-lock-keyword-face
+                    font-lock-type-face
+                    font-lock-function-name-face
+                    font-lock-variable-name-face
+                    font-lock-constant-face
+                    font-lock-builtin-face
+                    font-lock-string-face
+                    )))
+      (font-lock-add-keywords
+       nil
+       `((,(rx (or "(" ")" "[" "]" "{" "}"))
+          (0 (let* ((char (char-after (match-beginning 0)))
+                    (depth (save-excursion
+                             ;; Move to the correct position based on opening/closing delimiter
+                             (if (member char '(?\) ?\] ?\}))
+                                 (progn
+                                   (backward-char) ;; Move to the opening delimiter
+                                   (car (syntax-ppss)))
+                               (car (syntax-ppss)))))
+                    (face (nth (mod depth ,(length colors)) ',colors)))
+               (list 'face face)))))))
+    (font-lock-flush)
+    (font-lock-ensure))
+
+  (add-hook 'prog-mode-hook #'emacs-solo/rainbow-delimiters))
+
+;; Move global mode string to the tab-bar and hide tab close buttons
+(setq tab-bar-close-button-show nil
+      tab-bar-separator " "
+      tab-bar-format '(tab-bar-format-menu-bar
+                       tab-bar-format-tabs-groups
+                       tab-bar-separator
+                       tab-bar-format-align-right
+                       tab-bar-format-global))
+
+;; Turn on the tab-bar
+(tab-bar-mode 1)
+
+;; Customize time display
+(setq display-time-load-average nil
+      display-time-format "%l:%M %p %b %d W%U"
+      world-clock-time-format "%a, %d %b %i:%m %p %z"
+      world-clock-list
+      '(("Etc/UTC" "UTC")
+        ("Europe/Athens" "Athens")
+        ("America/Los_Angeles" "Seattle")
+        ("America/Denver" "Denver")
+        ("America/New_York" "New York")
+        ("Pacific/Auckland" "Auckland")
+        ("Asia/Shanghai" "Shanghai")
+        ("Asia/Kolkata" "Hyderabad")))
+
+(display-time-mode 1)
