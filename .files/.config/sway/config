@@ -7,7 +7,7 @@ set $mod Mod4
 set $primary DP-2 DP-3 DP-7 DP-8 HDMI-A-1
 set $laptop eDP-1
 
-output $laptop pos 1920 135 scale 2
+output $laptop pos 1920 135 scale 1.25
 #output DP-2 res 2560x1440@59.951hz pos 0 0 scale 2
 output DP-2 pos 0 0 scale 2
 output DP-3 pos 0 0 scale 2
@@ -155,7 +155,8 @@ bar {
     font pango:JetBrains Mono 12
     icon_theme "Papirus-Dark"
 
-    status_command while date +'%Y-%m-%d %I:%M:%S %p W%U'; do sleep 1; done
+    # 综合状态命令（时间 + 电池 + 更多）
+    status_command bash -c ~/.config/sway/status.sh
 
     tray_bindsym button1 Activate
     tray_bindsym button2 ContextMenu
