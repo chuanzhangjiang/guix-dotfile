@@ -59,10 +59,17 @@
         font-google-noto-emoji
         font-liberation
         font-awesome
+        ;; chinese fonts
+        font-wqy-microhei
+        font-adobe-source-han-sans
+        font-dejavu
+        font-google-noto-serif-cjk
+        font-google-noto-sans-cjk
 
         ;; Browsers
         ;(specification->package "qtwayland@5")
         qutebrowser
+        (specification->package "google-chrome-unstable")
         ;vimb
 
         ;; Authentication
