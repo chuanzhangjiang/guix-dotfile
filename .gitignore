@@ -20,4 +20,8 @@ fonts/truetype/.uuid
 
 ;; gpg
 .files/.gnupg
+
+;; auto-genfile
+.files/.local
 /.files/.config/fcitx5/conf/cached_layouts
+/.files/.config/pulse/cookie
