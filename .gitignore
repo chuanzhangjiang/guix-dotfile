@@ -26,3 +26,4 @@ fonts/truetype/.uuid
 /.files/.config/fcitx5/conf/cached_layouts
 /.files/.config/pulse/cookie
 /.files/.config/qutebrowser/autoconfig.yml
+/.files/.config/guix/channels.scm
