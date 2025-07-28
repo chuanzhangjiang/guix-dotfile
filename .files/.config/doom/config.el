@@ -36,7 +36,9 @@
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type 'relative)
+
+(add-hook 'prog-mode-hook (lambda () (setq display-line-numbers-type 'relative)))
+(setq display-line-numbers-type nil)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -84,53 +86,14 @@
 ;; ======================
 ;; 启用 EPA（加密接口）
 (require 'epa)
-(require 'epg)
 
 ;; 设置 pinentry 模式为 loopback（关键！）
 (setq epg-pinentry-mode 'loopback)
-(setq epa-pinentry-mode 'loopback)
 
 ;; 启动 pinentry 守护进程
 (use-package pinentry
   :config
   (pinentry-start))
-
-;; 配置 GnuPG 路径（Guix 专用）
-(setq epg-gpg-program "/home/chuan/.guix-profile/bin/gpg2")
-(setq epg-gpg-home-directory "~/.gnupg")
-
-;; 缓存密码设置
-(setq epa-file-cache-passphrase t)
-(setq epa-file-passphrase-alist-expiry 3600)  ; 1小时缓存
-
-;; 邮件签名设置
-(setq mml-secure-openpgp-encrypt-to-self t)
-(setq mml-secure-openpgp-sign-with-sender t)
-
-;; 设置全局签名
-(setq git-commit-signoff t)
-(setq git-commit-signature t)
-
-;; 提交时自动签名
-(add-hook! 'git-commit-setup-hook
-  (when (and (boundp 'git-commit-signature)
-             git-commit-signature)
-    (git-commit-signoff)))
-
-;; ======================
-;; 美观的密码提示
-;; ======================
-
-(defun chuan/pinentry-prompt (type)
-  "自定义密码提示"
-  (let ((prompt (pcase type
-                  ('decrypt "🔑 解锁 GPG 密钥: ")
-                  ('sign "✍️ 签名需要密码: ")
-                  ('auth "🔒 认证密码: ")
-                  (_ "🔑 输入 GPG 密码: "))))
-    (read-passwd prompt)))
-
-(advice-add 'pinentry-read-passphrase :override #'chuan/pinentry-prompt)
 
 ;; ====================
 ;; org相关配置
@@ -174,7 +137,7 @@
     ;; Set the terminal to a transparent version of the background color
     (send-string-to-terminal
      (format "\033]11;[90]%s\033\\"
-         (face-attribute 'default :background)))
+             (face-attribute 'default :background)))
     (set-face-background 'default "unspecified-bg" frame)))
 
 ;; Clear the background color for transparent terminals
@@ -316,31 +279,6 @@
   (dw/apply-ayu-dark-style)
   (add-hook 'modus-themes-after-load-theme-hook #'dw/clear-background-color))
 
-;; Make vertical window separators look nicer in terminal Emacs
-(set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))
-
-;; Clean up the mode line
-(setq-default mode-line-format
-              '("%e" "  "
-                (:propertize
-                 ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
-                mode-line-frame-identification
-                mode-line-buffer-identification
-                "   "
-                mode-line-position
-                mode-line-format-right-align
-                "  "
-                (project-mode-line project-mode-line-format)
-                " "
-                (vc-mode vc-mode)
-                "  "
-                mode-line-modes
-                mode-line-misc-info
-                "  ")
-              project-mode-line t
-              mode-line-buffer-identification '(" %b")
-              mode-line-position-column-line-format '(" %l:%c"))
-
 (use-package emacs-solo-rainbow-delimiters
   :ensure nil
   :no-require t
@@ -376,30 +314,19 @@ Opening and closing delimiters will have matching colors."
 
   (add-hook 'prog-mode-hook #'emacs-solo/rainbow-delimiters))
 
-;; Move global mode string to the tab-bar and hide tab close buttons
-(setq tab-bar-close-button-show nil
-      tab-bar-separator " "
-      tab-bar-format '(tab-bar-format-menu-bar
-                       tab-bar-format-tabs-groups
-                       tab-bar-separator
-                       tab-bar-format-align-right
-                       tab-bar-format-global))
-
-;; Turn on the tab-bar
-(tab-bar-mode 1)
-
-;; Customize time display
-(setq display-time-load-average nil
-      display-time-format "%l:%M %p %b %d W%U"
-      world-clock-time-format "%a, %d %b %i:%m %p %z"
-      world-clock-list
-      '(("Etc/UTC" "UTC")
-        ("Europe/Athens" "Athens")
-        ("America/Los_Angeles" "Seattle")
-        ("America/Denver" "Denver")
-        ("America/New_York" "New York")
-        ("Pacific/Auckland" "Auckland")
-        ("Asia/Shanghai" "Shanghai")
-        ("Asia/Kolkata" "Hyderabad")))
-
-(display-time-mode 1)
+;; llm
+(after! gptel
+  (setq gptel-backend
+        (gptel-make-deepseek "DeepSeek"
+          :host "api.deepseek.com"
+          :key (lambda () (auth-source-pass-get 'secret "deepseek/api-emacs"))  ; 延迟加载密钥
+          :models '("deepseek-chat" "deepseek-coder")  ; 可选模型列表
+          :stream t
+          :protocol "https")  ; 强制HTTPS
+        gptel-max-tokens 4096
+        gptel-model 'deepseek-chat  ; 全局默认模型
+        gptel-use-curl t; 提升网络稳定性
+        gptel-default-mode 'org-mode  ; 用org-mode获得更好排版
+        gptel-display-buffer-action '((display-buffer-reuse-window display-buffer-below-selected)) ; 智能窗口弹出
+        )
+  )
