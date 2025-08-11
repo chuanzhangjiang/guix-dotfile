@@ -8,6 +8,7 @@
   #:use-module (nongnu packages linux)
   #:use-module (nongnu packages video)
   #:use-module (nongnu system linux-initrd)
+  #:use-module (gnu packages xdisorg);;ydotool位置
   #:export (system-config))
 
 (use-service-modules dns guix admin sysctl pm nix avahi dbus cups desktop linux
@@ -88,7 +89,7 @@
                     stow
                     vim
                     emacs-pgtk
-                    ;;emacs
+                    ydotool
                     %base-packages))
 
    ;; Configure only the services necessary to run the system
@@ -153,14 +154,16 @@
                polkit-wheel-service
 
                ;; Give certain programs super-user access
-               (simple-service 'mount-setuid-helpers
+               (simple-service 'setuid-helpers
                                privileged-program-service-type
                                (map (lambda (program)
                                       (privileged-program
                                        (program program)
                                        (setuid? #t)))
                                     (list (file-append nfs-utils "/sbin/mount.nfs")
-                                          (file-append ntfs-3g "/sbin/mount.ntfs-3g"))))
+                                          (file-append ntfs-3g "/sbin/mount.ntfs-3g")
+                                          (file-append ydotool "/bin/ydotoold")
+                                          (file-append ydotool "/bin/ydotool"))))
 
                ;; Networking services
                (service network-manager-service-type

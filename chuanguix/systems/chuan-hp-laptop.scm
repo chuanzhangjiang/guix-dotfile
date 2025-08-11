@@ -4,6 +4,7 @@
   #:use-module (chuanguix systems base)
   #:use-module (chuanguix systems common)
   #:use-module (chuanguix home-services pipewire)
+  #:use-module (chuanguix home-services ydotool)
   #:use-module (gnu home)
   #:use-module (gnu packages file-systems)
   #:use-module (gnu services)
@@ -17,6 +18,7 @@
   (home-environment
    (services (cons*
     (service home-pipewire-service-type)
+    (service home-ydotool-service-type)
     common-home-services))))
 
 (define system
