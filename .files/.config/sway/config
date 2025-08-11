@@ -30,6 +30,56 @@ input type:touchpad {
     middle_emulation enabled
 }
 
+# 定义变量来控制移动距离
+set $mouse_move_slow 5
+set $mouse_move 20
+set $mouse_move_fast 50
+# === 模式化控制===
+# 按win+m进入鼠标控制模式
+bindsym $mod+m mode "mouse"
+
+mode "mouse" {
+
+    # 慢移动
+    bindsym Alt+h exec ydotool mousemove -x -$mouse_move_slow -y 0
+    bindsym Alt+j exec ydotool mousemove 0 $mouse_move_slow
+    bindsym Alt+k exec ydotool mousemove -x 0 -y -$mouse_move_slow
+    bindsym Alt+l exec ydotool mousemove $mouse_move_slow 0
+
+    # 基础移动
+    bindsym h exec ydotool mousemove -x -$mouse_move -y 0
+    bindsym j exec ydotool mousemove 0 $mouse_move
+    bindsym k exec ydotool mousemove -x 0 -y -$mouse_move
+    bindsym l exec ydotool mousemove $mouse_move 0
+
+    # 快速移动（配合Shift）
+    bindsym Shift+h exec ydotool mousemove -x -$mouse_move_fast -y 0
+    bindsym Shift+j exec ydotool mousemove 0 $mouse_move_fast
+    bindsym Shift+k exec ydotool mousemove -x 0 -y -$mouse_move_fast
+    bindsym Shift+l exec ydotool mousemove $mouse_move_fast 0
+
+    # 单击
+    bindsym f exec ydotool click 0xC0; #左键
+    bindsym a exec ydotool click 0xC1; #右键
+    bindsym s exec ydotool click 0xC2; #中键
+
+    # 按住不放（按下一次键盘即可）
+    bindsym Shift+f exec ydotool click 0x40; #左键
+    bindsym Shift+a exec ydotool click 0x41; #右键
+    bindsym Shift+s exec ydotool click 0x42; #中键
+
+    # 松开对应按键（再按一次按键松开）
+    bindsym Alt+f exec ydotool click 0x80; #左键
+    bindsym Alt+a exec ydotool click 0x81; #右键
+    bindsym Alt+s exec ydotool click 0x82; #中键
+
+    bindsym u exec ydotool key -d 50 104:1 104:0; #pg_up
+    bindsym d exec ydotool key -d 50 109:1 109:0; #pg_down
+
+    # 退出鼠标模式
+    bindsym Escape mode "default"
+}
+
 font pango:JetBrains Mono 7
 
 # Use Mouse+$mod to drag floating windows to their wanted position
@@ -98,6 +148,7 @@ workspace $ws5 output $laptop
 workspace $ws1 output $primary $laptop # Set ws 1 last to land there on startup
 
 # Switch to workspace
+bindsym $mod+escape workspace $ws0
 bindsym $mod+grave workspace $ws0
 bindsym $mod+1 workspace $ws1
 bindsym $mod+2 workspace $ws2
@@ -106,12 +157,13 @@ bindsym $mod+4 workspace $ws4
 bindsym $mod+5 workspace $ws5
 
 # Move focused container to workspace
-bindsym $mod+Shift+grave move container to workspace $ws0
-bindsym $mod+Shift+1 move container to workspace $ws1
-bindsym $mod+Shift+2 move container to workspace $ws2
-bindsym $mod+Shift+3 move container to workspace $ws3
-bindsym $mod+Shift+4 move container to workspace $ws4
-bindsym $mod+Shift+5 move container to workspace $ws5
+bindsym $mod+Shift+escape move container to workspace $ws0; workspace $ws0
+bindsym $mod+Shift+grave move container to workspace $ws0; workspace $ws0
+bindsym $mod+Shift+1 move container to workspace $ws1; workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2; workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3; workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4; workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5; workspace $ws5
 
 # Bind hotkeys for brightness and volume
 bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
@@ -181,11 +233,10 @@ exec gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
 exec gsettings set org.gnome.desktop.interface font-name "Iosevka Aile 11"
 
 # Load system-specific configuration
-include "~/.config/sway/systems/$(hostname)"
+# include "~/.config/sway/systems/$(hostname)"
 
 # Update DBUS activation records to ensure Flatpak apps work
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 
 # 输入法支持
 exec_always fcitx5 -d --replace
-
