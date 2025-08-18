@@ -27,3 +27,5 @@ fonts/truetype/.uuid
 /.files/.config/pulse/cookie
 /.files/.config/qutebrowser/autoconfig.yml
 /.files/.config/guix/channels.scm
+/.files/.config/doom/aichat/
+/.files/.config/doom/custom.el
