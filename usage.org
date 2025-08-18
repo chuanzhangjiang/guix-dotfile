@@ -1,0 +1,69 @@
+* 系统使用文档
+
+** 系统级别配置 (base.scm)
+
+*** 系统包
+- bluez: 蓝牙支持
+- bluez-alsa: 蓝牙音频支持
+- brightnessctl: 屏幕亮度控制
+- exfat-utils/fuse-exfat: exFAT文件系统支持
+- git: 版本控制系统
+- gvfs: 用户空间挂载支持
+- intel-media-driver/nonfree: Intel媒体硬件加速
+- libva-utils: VA-API视频加速工具
+- ntfs-3g: NTFS文件系统支持
+- stow: 点文件管理
+- vim: 文本编辑器
+- emacs: Emacs编辑器
+- ydotool: 系统级输入模拟工具
+
+*** 系统服务
+- elogind: 登录和会话管理
+- console-font: TTY控制台字体配置
+- greetd: 图形登录管理器
+- screen-locker (swaylock): 屏幕锁定
+- guix-service: 添加nonguix软件源
+- polkit-wheel: 允许wheel组用户执行特权操作
+- privileged-program: 为特定程序设置SUID权限
+- network-manager: 网络管理
+- wpa-supplicant: WiFi支持
+- modem-manager: 移动网络支持
+- bluetooth: 蓝牙服务
+- usb-modeswitch: USB设备模式切换
+- avahi: mDNS/DNS-SD服务
+- udisks: 磁盘管理
+- upower: 电源管理
+- cups: 打印服务
+- geoclue: 地理定位服务
+- thermald: 温度管理
+- tlp: 笔记本电源优化
+- pam-limits: 为realtime组设置资源限制
+- docker/containerd: 容器服务
+- libvirt: 虚拟机管理
+- openssh: SSH服务（端口2222）
+- sane: 扫描仪支持
+- ntp: 时间同步
+- nix: Nix包管理器支持
+
+** 用户配置 (chuan-guix.scm)
+
+*** 系统配置
+- 主机名: chuan-guix
+- 文件系统:
+  - /: ext4 (UUID: cc218fc0-6a1a-4c4e-a7f4-2718446fd879)
+  - /boot/efi: FAT16 (UUID: 000E-D1A8)
+
+** 用户配置 (chuan-hp-laptop.scm)
+
+*** 系统配置
+- 主机名: chuan-hp-laptop
+- 文件系统:
+  - /: LUKS加密ext4 (UUID: 2decf318-7f82-49a1-93f4-703d736e2f0a)
+  - /boot/efi: FAT32 (UUID: 59A3-3D18)
+- Swap: 使用/swapfile
+- 内核参数: vm.swappiness=10
+
+*** 用户服务
+- home-pipewire: PipeWire音频服务
+- home-ydotool: 用户级输入模拟
+- home-input-method: 输入法支持
