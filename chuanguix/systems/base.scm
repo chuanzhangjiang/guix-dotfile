@@ -88,28 +88,28 @@
                     ntfs-3g
                     stow
                     vim
-                    emacs-pgtk
+                    emacs
                     ydotool
                     %base-packages))
 
    ;; Configure only the services necessary to run the system
    (services (append
               (modify-services %base-services
-               (delete login-service-type)
-               (delete mingetty-service-type)
-               (delete console-font-service-type))
+                               (delete login-service-type)
+                               (delete mingetty-service-type)
+                               (delete console-font-service-type))
               (list
                ;; Seat management (can't use seatd because Wireplumber depends on elogind)
                (service elogind-service-type)
 
                ;; Configure TTYs and graphical greeter
                (service console-font-service-type
-                 (map (lambda (tty)
-                        ;; Use a larger font for HIDPI screens
-                        (cons tty (file-append
-                                   font-terminus
-                                   "/share/consolefonts/ter-132n")))
-                      '("tty1" "tty2" "tty3")))
+                        (map (lambda (tty)
+                               ;; Use a larger font for HIDPI screens
+                               (cons tty (file-append
+                                          font-terminus
+                                          "/share/consolefonts/ter-132n")))
+                             '("tty1" "tty2" "tty3")))
 
                (service greetd-service-type
                         (greetd-configuration
@@ -139,16 +139,16 @@
                          (using-setuid? #f)))
 
                ;; Configure the Guix service and ensure we use Nonguix substitutes
-               ;; (simple-service 'add-nonguix-substitutes
-               ;;                 guix-service-type
-               ;;                 (guix-extension
-               ;;                  (substitute-urls
-               ;;                   (append (list "https://substitutes.nonguix.org")
-               ;;                           %default-substitute-urls))
-               ;;                  (authorized-keys
-               ;;                   (append (list (plain-file "nonguix.pub"
-               ;;                                             "(public-key (ecc (curve Ed25519) (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))
-               ;;                           %default-authorized-guix-keys))))
+               (simple-service 'add-nonguix-substitutes
+                               guix-service-type
+                               (guix-extension
+                                (substitute-urls
+                                 (append (list "https://nonguix-proxy.ditigal.xyz")
+                                         %default-substitute-urls))
+                                (authorized-keys
+                                 (append (list (plain-file "nonguix.pub"
+                                                           "(public-key (ecc (curve Ed25519) (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))
+                                         %default-authorized-guix-keys))))
 
                ;; Set up Polkit to allow `wheel' users to run admin tasks
                polkit-wheel-service
@@ -263,9 +263,9 @@
 
 (define* (system-config #:key system home)
   (operating-system
-    (inherit system)
-    (timezone "Asia/Hong_Kong")
-    (locale "en_US.utf8")
+   (inherit system)
+   (timezone "Asia/Hong_Kong")
+   (locale "en_US.utf8")
 
    ;; Use non-free Linux and firmware
    (kernel linux)
@@ -336,9 +336,9 @@
    ;; Configure only the services necessary to run the system
    (services (append
               (modify-services %base-services
-               (delete login-service-type)
-               (delete mingetty-service-type)
-               (delete console-font-service-type))
+                               (delete login-service-type)
+                               (delete mingetty-service-type)
+                               (delete console-font-service-type))
               (operating-system-user-services system)
               (list
                ;; Set up my home configuration
@@ -350,12 +350,12 @@
 
                ;; Configure TTYs and graphical greeter
                (service console-font-service-type
-                 (map (lambda (tty)
-                        ;; Use a larger font for HIDPI screens
-                        (cons tty (file-append
-                                   font-terminus
-                                   "/share/consolefonts/ter-132n")))
-                      '("tty1" "tty2" "tty3")))
+                        (map (lambda (tty)
+                               ;; Use a larger font for HIDPI screens
+                               (cons tty (file-append
+                                          font-terminus
+                                          "/share/consolefonts/ter-132n")))
+                             '("tty1" "tty2" "tty3")))
 
                (service greetd-service-type
                         (greetd-configuration
@@ -377,16 +377,16 @@
                          (using-setuid? #f)))
 
                ;; Configure the Guix service and ensure we use Nonguix substitutes
-               ;; (simple-service 'add-nonguix-substitutes
-               ;;                 guix-service-type
-               ;;                 (guix-extension
-               ;;                  (substitute-urls
-               ;;                   (append (list "https://substitutes.nonguix.org")
-               ;;                           %default-substitute-urls))
-               ;;                  (authorized-keys
-               ;;                   (append (list (plain-file "nonguix.pub"
-               ;;                                             "(public-key (ecc (curve Ed25519) (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))
-               ;;                           %default-authorized-guix-keys))))
+               (simple-service 'add-nonguix-substitutes
+                               guix-service-type
+                               (guix-extension
+                                (substitute-urls
+                                 (append (list "https://nonguix-proxy.ditigal.xyz")
+                                         %default-substitute-urls))
+                                (authorized-keys
+                                 (append (list (plain-file "nonguix.pub"
+                                                           "(public-key (ecc (curve Ed25519) (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))
+                                         %default-authorized-guix-keys))))
 
                ;; Set up Polkit to allow `wheel' users to run admin tasks
                polkit-wheel-service

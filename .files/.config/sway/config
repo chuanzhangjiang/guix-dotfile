@@ -239,4 +239,4 @@ exec gsettings set org.gnome.desktop.interface font-name "Iosevka Aile 11"
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 
 # 输入法支持
-exec_always fcitx5 -d --replace
+# exec_always fcitx5 -d --replace
