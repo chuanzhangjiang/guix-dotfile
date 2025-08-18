@@ -49,3 +49,11 @@
 ;; (unpin! t)
 
 (package! pinentry)
+(package! guix)
+(package! llm-tool-collection
+  :recipe (:host github :repo "skissue/llm-tool-collection"))
+
+;; (package! gptel-quick
+;;   :recipe (:host github
+;;            :repo "karthink/gptel-quick"
+;;            :branch "main"))  ; 明确指定分支

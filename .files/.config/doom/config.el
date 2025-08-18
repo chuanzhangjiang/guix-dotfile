@@ -32,7 +32,7 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-one)
+;; (setq doom-theme 'doom-one)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -91,7 +91,7 @@
 (setq epg-pinentry-mode 'loopback)
 
 ;; 启动 pinentry 守护进程
-(use-package pinentry
+(use-package! pinentry
   :config
   (pinentry-start))
 
@@ -314,46 +314,53 @@ Opening and closing delimiters will have matching colors."
 
   (add-hook 'prog-mode-hook #'emacs-solo/rainbow-delimiters))
 
-;; llm
-(after! gptel
-  (setq gptel-backend
-        (gptel-make-deepseek "DeepSeek"
-          :host "api.deepseek.com"
-          :key (lambda () (auth-source-pass-get 'secret "deepseek/api-emacs"))  ; 延迟加载密钥
-          :models '("deepseek-chat" "deepseek-coder")  ; 可选模型列表
-          :stream t
-          :protocol "https")  ; 强制HTTPS
-        gptel-max-tokens 4096
-        gptel-model 'deepseek-chat  ; 全局默认模型
-        gptel-use-curl t; 提升网络稳定性
-        gptel-default-mode 'org-mode  ; 用org-mode获得更好排版
-        gptel-display-buffer-action '(pop-to-buffer-same-window) ; 智能窗口弹出
-        )
+;; gptel
+(load! "lisp/gptel-ask")
+(load! "lisp/setup-gptel")
+;; (after! gptel
+;;   (setq gptel-backend
+;;         (gptel-make-deepseek "DeepSeek"
+;;           :host "api.deepseek.com"
+;;           :key (lambda () (auth-source-pass-get 'secret "deepseek/api-emacs"))  ; 延迟加载密钥
+;;           :models '("deepseek-chat" "deepseek-coder")  ; 可选模型列表
+;;           :stream t
+;;           :protocol "https")  ; 强制HTTPS
+;;         gptel-max-tokens 4096
+;;         gptel-model 'deepseek-chat  ; 全局默认模型
+;;         gptel-use-curl t; 提升网络稳定性
+;;         gptel-default-mode 'org-mode  ; 用org-mode获得更好排版
+;;         gptel-display-buffer-action '(pop-to-buffer-same-window) ; 智能窗口弹出
+;;         )
 
-  (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "** *Prompt*: "
-        (alist-get 'org-mode gptel-response-prefix-alist) "** *Response*:\n"
-        (alist-get 'markdown-mode gptel-prompt-prefix-alist) "#### ")
+;;   (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "** *Prompt*: "
+;;         (alist-get 'org-mode gptel-response-prefix-alist) "** *Response*:\n"
+;;         (alist-get 'markdown-mode gptel-prompt-prefix-alist) "#### "))
 
-  ;; 自定义翻译函数
-  (defun chuan/gptel-trans-to-cn ()
-    "翻译选中内容为中文，并在右侧窗口显示结果。按 `q` 关闭窗口。"
-    (interactive)
-    (unless (use-region-p)
-      (user-error "请先选中要翻译的文本"))
+;; ;; 自定义翻译函数
+;; (defun chuan/gptel-trans-to-cn ()
+;;   "翻译选中内容为中文，并在右侧窗口显示结果。按 `q` 关闭窗口。"
+;;   (interactive)
+;;   (unless (use-region-p)
+;;     (user-error "请先选中要翻译的文本"))
 
-    (let* ((text (buffer-substring-no-properties (region-beginning) (region-end)))
-           (buffer (get-buffer-create "*GPTel 翻译*")))
-      (gptel-request
-          (concat "将以下内容翻译为地道的中文（保持专业术语准确，输出不带引号）：\n\n" text)
-        :buffer buffer
-        :system "你是一名专业的翻译官，擅长技术文档和文学翻译。"
-        :callback (lambda (response info)  ; 显式声明两个参数
-                    (when response
-                      (with-current-buffer buffer
-                        (erase-buffer)
-                        (insert response)
-                        (view-mode +1)
-                        (display-buffer-in-side-window
-                         (current-buffer)
-                         '((side . right) (window-width . 0.4)))))))))
-  )
+;;   (let* ((text (buffer-substring-no-properties (region-beginning) (region-end)))
+;;          (buffer (get-buffer-create "*GPTel 翻译*")))
+;;     (gptel-request
+;;         (concat "将以下内容翻译为地道的中文（保持专业术语准确，输出不带引号）：\n\n" text)
+;;       :buffer buffer
+;;       :system "你是一名专业的翻译官，擅长技术文档和文学翻译。"
+;;       :callback (lambda (response info)  ; 显式声明两个参数
+;;                   (when response
+;;                     (with-current-buffer buffer
+;;                       (erase-buffer)
+;;                       (insert response)
+;;                       (view-mode +1)
+;;                       (display-buffer-in-side-window
+;;                        (current-buffer)
+;;                        '((side . right) (window-width . 0.4)))))))))
+
+;; ;; 现成的tool
+;; (use-package! llm-tool-collection
+;;   :config (mapcar (apply-partially #'apply #'gptel-make-tool)
+;;                   (llm-tool-collection-get-all))
+;;   :defer)
