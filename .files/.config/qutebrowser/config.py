@@ -7,6 +7,8 @@ c.auto_save.session = True
 c.scrolling.smooth = True
 c.session.lazy_restore = True
 c.content.autoplay = False
+c.tabs.position = 'left'  # 或 'right'，控制标签栏在窗口左侧或右侧显示
+# c.tabs.show = 'multiple'  # 确保多个标签页可同时显示
 
 # Scale pages and UI better for hidpi
 # c.zoom.default = "125%"
